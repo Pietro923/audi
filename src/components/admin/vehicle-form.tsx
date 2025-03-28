@@ -32,7 +32,8 @@ import {
   Calendar,
   Gauge,
   ShieldCheck,
-  Settings 
+  Settings, 
+  Star
 } from 'lucide-react'
 
 // Expanded vehicle schema with fields matching the detailed page
@@ -49,6 +50,7 @@ const vehicleSchema = z.object({
   transmission: z.enum(["manual", "automatico", "tiptronic"]).optional(),
   fuel_type: z.enum(["Gasolina", "Eléctrico", "Híbrido", "Diesel"]).optional(),
   engine_type: z.string().optional(),
+  is_featured: z.boolean().default(false),
 })
 
 type VehicleFormData = z.infer<typeof vehicleSchema>
@@ -75,6 +77,7 @@ export function VehicleForm() {
       transmission: 'automatico',
       fuel_type: 'Gasolina',
       engine_type: '',
+      is_featured: false,
     }
   })
   
@@ -407,6 +410,25 @@ export function VehicleForm() {
                 placeholder="Describa las características y estado del vehículo..."
               />
             </div>
+            <div className="flex items-center space-x-2 py-2">
+  <div className="flex-1">
+    <Label htmlFor="is_featured" className="flex items-center text-neutral-700">
+      <Star className="w-4 h-4 mr-2" />
+      Destacar en página principal
+    </Label>
+    <p className="text-xs text-neutral-500">
+      Los vehículos destacados aparecerán en la sección "Nuestros Modelos" de la página de inicio
+    </p>
+  </div>
+  <div className="flex h-6 items-center">
+    <input
+      type="checkbox"
+      id="is_featured"
+      {...register("is_featured")}
+      className="h-4 w-4 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-600"
+    />
+  </div>
+</div>
             
             <Button 
               type="submit" 
