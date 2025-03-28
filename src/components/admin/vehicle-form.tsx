@@ -1,5 +1,4 @@
 'use client'
-
 import { useState } from 'react'
 import { useForm, Controller } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -22,7 +21,6 @@ import {
   SelectValue 
 } from '@/components/ui/select'
 
-// Esquema de validación para el formulario
 const vehicleSchema = z.object({
   make: z.string().min(2, "Marca es requerida"),
   model: z.string().min(2, "Modelo es requerido"),
@@ -32,8 +30,23 @@ const vehicleSchema = z.object({
   condition: z.enum(["nuevo", "seminuevo", "usado"]),
   description: z.string().optional()
 })
-
 type VehicleFormData = z.infer<typeof vehicleSchema>
+
+const uploadImage = async (file: File, vehicleId: string) => {
+  const fileExt = file.name.split('.').pop()
+  const fileName = `${vehicleId}/${Math.random()}.${fileExt}`
+  const { error: uploadError } = await supabase.storage
+    .from('vehicle-images')
+    .upload(fileName, file)
+  
+  if (uploadError) {
+    console.error('Error uploading image:', uploadError)
+    return null
+  }
+  
+  const { data } = supabase.storage.from('vehicle-images').getPublicUrl(fileName)
+  return data.publicUrl
+}
 
 export function VehicleForm() {
   const { 
@@ -53,20 +66,63 @@ export function VehicleForm() {
       description: ''
     }
   })
-
+  
   const [isSubmitting, setIsSubmitting] = useState(false)
-
+  const [image, setImage] = useState<File | null>(null)
+  
   const onSubmit = async (data: VehicleFormData) => {
     setIsSubmitting(true)
     try {
-      const { error } = await supabase
+      // First, upload the image if exists
+      let imageUrl = null
+      if (image) {
+        const fileExt = image.name.split('.').pop()
+        const fileName = `${Math.random()}.${fileExt}`
+        
+        // Upload to Supabase storage
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('vehicle-images')
+          .upload(fileName, image, {
+            cacheControl: '3600',
+            upsert: false
+          })
+        
+        if (uploadError) {
+          console.error('Error uploading image:', uploadError)
+          throw uploadError
+        }
+        
+        // Correctly get the public URL
+        const { data: urlData } = supabase.storage
+          .from('vehicle-images')
+          .getPublicUrl(fileName)
+        
+        imageUrl = urlData.publicUrl
+      }
+  
+      // Insert the vehicle with the image URL
+      const { data: vehicleData, error: vehicleError } = await supabase
         .from('vehicles')
-        .insert([data])
-
-      if (error) throw error
-
+        .insert([{
+          make: data.make,
+          model: data.model,
+          year: data.year,
+          price: data.price,
+          mileage: data.mileage,
+          condition: data.condition,
+          description: data.description || null,
+          images: imageUrl ? [imageUrl] : []
+        }])
+        .select('id')
+  
+      if (vehicleError) {
+        console.error('Error inserting vehicle:', vehicleError)
+        throw vehicleError
+      }
+  
       toast.success('Vehículo agregado exitosamente')
       reset() // Limpiar formulario
+      setImage(null) // Resetear imagen
     } catch (error) {
       console.error('Error adding vehicle:', error)
       toast.error('Error al agregar vehículo')
@@ -82,7 +138,7 @@ export function VehicleForm() {
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-2 gap-4">
             <div>
               <Controller
                 name="make"
@@ -212,6 +268,16 @@ export function VehicleForm() {
               />
             )}
           />
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Imagen</label>
+            <input 
+              type="file" 
+              accept="image/*" 
+              onChange={(e) => setImage(e.target.files?.[0] || null)}
+              className="mt-1 block w-full"
+            />
+          </div>
 
           <Button 
             type="submit" 

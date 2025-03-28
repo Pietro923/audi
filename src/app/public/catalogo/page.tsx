@@ -1,94 +1,165 @@
-import React from 'react';
+'use client'
 
-// Define a type for our vehicle
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase/client'
+import Link from 'next/link'
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+
 interface Vehicle {
-  id: number;
-  make: string;
-  model: string;
-  year: number;
-  price: number;
-  imageUrl: string;
-  description: string;
+  id: string
+  make: string
+  model: string
+  year: number
+  price: number
+  condition: string
+  mileage: number
+  description?: string
+  images?: string[]
 }
 
-// Sample vehicle data
-const vehicles: Vehicle[] = [
-  {
-    id: 1,
-    make: 'Toyota',
-    model: 'Camry',
-    year: 2023,
-    price: 28500,
-    imageUrl: '/api/placeholder/400/300',
-    description: 'Sedán familiar con excelente eficiencia de combustible y comodidad.'
-  },
-  {
-    id: 2,
-    make: 'Ford',
-    model: 'Mustang',
-    year: 2022,
-    price: 45000,
-    imageUrl: '/api/placeholder/400/300',
-    description: 'Potente muscle car con diseño clásico y rendimiento excepcional.'
-  },
-  {
-    id: 3,
-    make: 'Tesla',
-    model: 'Model 3',
-    year: 2024,
-    price: 52000,
-    imageUrl: '/api/placeholder/400/300',
-    description: 'Vehículo eléctrico de última generación con tecnología de punta.'
-  },
-  {
-    id: 4,
-    make: 'Honda',
-    model: 'CR-V',
-    year: 2023,
-    price: 32000,
-    imageUrl: '/api/placeholder/400/300',
-    description: 'SUV compacto ideal para familias, con versatilidad y seguridad.'
-  }
-];
+export default function CatalogoVehiculos() {
+  const [vehicles, setVehicles] = useState<Vehicle[]>([])
+  const [filtros, setFiltros] = useState({
+    make: '',
+    minPrice: '',
+    maxPrice: '',
+    condition: ''
+  })
+  const [isLoading, setIsLoading] = useState(true)
 
-export default function Catalog() {
-  return (
-    <main className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold text-center mb-8">Catálogo de Vehículos</h1>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {vehicles.map((vehicle) => (
-          <div 
-            key={vehicle.id} 
-            className="border rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300"
-          >
-            <img 
-              src={vehicle.imageUrl} 
-              alt={`${vehicle.make} ${vehicle.model}`} 
-              className="w-full h-48 object-cover"
-            />
-            <div className="p-4">
-              <h2 className="text-2xl font-semibold mb-2">
-                {vehicle.make} {vehicle.model}
-              </h2>
-              <p className="text-gray-600 mb-2">
-                Año: {vehicle.year}
-              </p>
-              <p className="text-lg font-bold text-green-600 mb-2">
-                ${vehicle.price.toLocaleString()}
-              </p>
-              <p className="text-gray-500 mb-4">
-                {vehicle.description}
-              </p>
-              <a href='vehiculo'
-                className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 transition-colors"
-              >
-                Ver Detalles
-              </a>
-            </div>
+  // Fetch vehicles with dynamic filtering
+  const fetchVehicles = async () => {
+    setIsLoading(true)
+    
+    // Base query
+    let query = supabase.from('vehicles').select('*')
+    
+    // Apply filters
+    if (filtros.make) {
+      query = query.ilike('make', `%${filtros.make}%`)
+    }
+    
+    if (filtros.minPrice) {
+      query = query.gte('price', parseFloat(filtros.minPrice))
+    }
+    
+    if (filtros.maxPrice) {
+      query = query.lte('price', parseFloat(filtros.maxPrice))
+    }
+    
+    if (filtros.condition) {
+      query = query.eq('condition', filtros.condition)
+    }
+
+    const { data, error } = await query.order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Error fetching vehicles:', error)
+      return
+    }
+
+    setVehicles(data || [])
+    setIsLoading(false)
+  }
+
+  // Initial fetch and filter changes
+  useEffect(() => {
+    fetchVehicles()
+  }, [filtros])
+
+  const renderVehicleCard = (vehicle: Vehicle) => {
+    // Usar la primera imagen del array, sin placeholder
+    const imageUrl = vehicle.images && vehicle.images.length > 0 
+      ? vehicle.images[0] 
+      : '' // Dejar vacío si no hay imagen
+  
+    return (
+      <Link 
+        href={`/public/vehiculo/${vehicle.id}`} 
+        key={vehicle.id} 
+        className="border rounded-lg overflow-hidden shadow-md hover:shadow-xl transition-shadow"
+      >
+        {imageUrl ? (
+          <img 
+            src={imageUrl} 
+            alt={`${vehicle.make} ${vehicle.model}`} 
+            className="w-full h-48 object-cover"
+          />
+        ) : null}
+        <div className="p-4">
+          <h2 className="text-xl font-bold">
+            {vehicle.make} {vehicle.model}
+          </h2>
+          <div className="flex justify-between items-center mt-2">
+            <span className="text-green-600 font-semibold">
+              ${vehicle.price.toLocaleString()}
+            </span>
+            <span className="text-gray-500">
+              {vehicle.year} | {vehicle.condition}
+            </span>
           </div>
-        ))}
+        </div>
+      </Link>
+    )
+  }
+
+  return (
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Catálogo de Vehículos</h1>
+      
+      {/* Filtros */}
+      <div className="grid md:grid-cols-4 gap-4 mb-6">
+        <Input 
+          placeholder="Marca" 
+          value={filtros.make}
+          onChange={(e) => setFiltros({...filtros, make: e.target.value})}
+        />
+        <Input 
+          placeholder="Precio Mínimo" 
+          type="number"
+          value={filtros.minPrice}
+          onChange={(e) => setFiltros({...filtros, minPrice: e.target.value})}
+        />
+        <Input 
+          placeholder="Precio Máximo" 
+          type="number"
+          value={filtros.maxPrice}
+          onChange={(e) => setFiltros({...filtros, maxPrice: e.target.value})}
+        />
+        <Select 
+          onValueChange={(value) => setFiltros({...filtros, condition: value})}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Estado" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="nuevo">Nuevo</SelectItem>
+            <SelectItem value="seminuevo">Semi-Nuevo</SelectItem>
+            <SelectItem value="usado">Usado</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
-    </main>
-  );
+
+      {/* Resultados */}
+      {isLoading ? (
+        <div>Cargando vehículos...</div>
+      ) : vehicles.length === 0 ? (
+        <div className="text-center text-gray-500">
+          No se encontraron vehículos
+        </div>
+      ) : (
+        <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {vehicles.map(renderVehicleCard)}
+        </div>
+      )}
+    </div>
+  )
 }
