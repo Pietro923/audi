@@ -12,6 +12,7 @@ import {
   Clock
 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Footer() {
   const socialLinks = [
@@ -19,22 +20,29 @@ export default function Footer() {
     { icon: Instagram, label: "Instagram", href:"https://www.instagram.com/audiubmotors/" },
     { icon: Linkedin, label: "LinkedIn", href:"" },
   ];
-
   return (
-    <footer className="relative bg-gradient-to-br from-gray-900 to-red-900 text-white">
-      <div className="absolute inset-0 bg-grid-white/[0.05] bg-[size:30px_30px]" />
-      
+    <footer className="text-white" style={{ background: 'linear-gradient(178deg, #8c8c8c, #121212)' }}>
       <div className="container mx-auto px-4 relative">
         <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {/* About */}
           <div className="space-y-4">
-            <img src="audi.svg" alt="UB Motors" /> <h2>UB Motors</h2>
-            <h3 className="text-xl font-bold w-fit border-b-2 border-red-500">Sobre Nosotros</h3>
+            <div className="flex items-center gap-3 mb-4">
+              <Image 
+                src="/audi.svg" 
+                alt="UB Motors" 
+                width={50} 
+                height={50} 
+              />
+              <h2 className="text-2xl font-bold">UB Motors</h2>
+            </div>
+            <h3 className="text-xl font-bold w-fit border-b-2 border-red-500">Nuestra Filosofía</h3>
             <p className="text-gray-300 leading-relaxed">
-              Pueble S.A. es líder en maquinaria agrícola y de construcción, ofreciendo soluciones 
-              confiables y de calidad para el campo argentino desde hace más de 20 años.
+              En UB Motors tenemos la filosofía de lograr la confianza de nuestros clientes, satisfaciendo sus necesidades. 
+              Representamos una marca cuyas señas de identidad son: Compromiso de Servicio, Calidad y Tecnología. 
+              Hemos implementado un sistema de Gestión de Calidad basado en la norma ISO 9001, garantizando excelencia 
+              en cada uno de nuestros procesos.
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-4 pt-4">
               {socialLinks.map((social, index) => {
                 const Icon = social.icon;
                 return (
@@ -51,44 +59,51 @@ export default function Footer() {
               })}
             </div>
           </div>
-
           {/* Contact */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold w-fit border-b-2 border-red-500">Contacto</h3>
-            <ul className="space-y-3">
-              <li className="flex gap-3 text-gray-300">
-                <Building2 className="w-5 h-5 flex-shrink-0" />
-                <span>Santiago del Estero 902 | Tucumán | Argentina</span>
-              </li>
-              <li className="flex gap-3 text-gray-300">
-                <Phone className="w-5 h-5 flex-shrink-0" />
-                <span>3814976908</span>
-              </li>
-              <li className="flex gap-3 text-gray-300">
-                <Clock className="w-5 h-5 flex-shrink-0" />
-                <span>De 9:00 hs a 13:00 hs</span>
-              </li>
-              <ul className="space-y-3">
-                <li className="flex gap-3 text-gray-300">
-                  <Mail className="w-5 h-5 flex-shrink-0" />
-                  <span>Ventas: rojas.gonzalo@ubmotors.com.ar</span>
-                </li>
-                <li className="flex gap-3 text-gray-300">
-                  <Mail className="w-5 h-5 flex-shrink-0" />
-                  <span>Postventa: jose.liberti@ubmotors.com.ar</span>
-                </li>
-                <li className="flex gap-3 text-gray-300">
-                  <Mail className="w-5 h-5 flex-shrink-0" />
-                  <span>Repuestos: leonardo.cocha@ubmotors.com.ar</span>
-                </li>
-                <li className="flex gap-3 text-gray-300">
-                  <Mail className="w-5 h-5 flex-shrink-0" />
-                  <span>Turnos: contacto@ubmotors.com.ar</span>
-                </li>
-              </ul>
-            </ul>
-          </div>
+<div className="space-y-4">
+  <h3 className="text-xl font-bold w-fit border-b-2 border-red-500">Contacto</h3>
+  <div className="space-y-4">
+    <div className="bg-white/5 p-4 rounded-lg">
+      <div className="flex items-center gap-3 mb-2">
+        <Building2 className="w-5 h-5 flex-shrink-0 text-red-500" />
+        <h4 className="font-semibold text-white">Ubicación</h4>
+      </div>
+      <p className="text-gray-300 pl-8">Santiago del Estero 902 | Tucumán | Argentina</p>
+    </div>
 
+    <div className="bg-white/5 p-4 rounded-lg">
+      <div className="flex items-center gap-3 mb-2">
+        <Phone className="w-5 h-5 flex-shrink-0 text-red-500" />
+        <h4 className="font-semibold text-white">Teléfonos</h4>
+      </div>
+      <div className="pl-8 space-y-1">
+        <p className="text-gray-300">Ventas: +54 381 497-6908</p>
+        <p className="text-gray-300">Whatsapp: +54 381 661-8632</p>
+      </div>
+    </div>
+
+    <div className="bg-white/5 p-4 rounded-lg">
+      <div className="flex items-center gap-3 mb-2">
+        <Clock className="w-5 h-5 flex-shrink-0 text-red-500" />
+        <h4 className="font-semibold text-white">Horario de Atención</h4>
+      </div>
+      <p className="text-gray-300 pl-8">Lunes a Viernes: 9:00 hs a 13:00 hs</p>
+    </div>
+
+    <div className="bg-white/5 p-4 rounded-lg">
+      <div className="flex items-center gap-3 mb-2">
+        <Mail className="w-5 h-5 flex-shrink-0 text-red-500" />
+        <h4 className="font-semibold text-white">Correos Electrónicos</h4>
+      </div>
+      <div className="pl-8 space-y-1">
+        <p className="text-gray-300"> <span className="font-bold text-red-500">Ventas:</span>  rojas.gonzalo@ubmotors.com.ar</p>
+        <p className="text-gray-300"> <span className="font-bold text-red-500">Postventa:</span> jose.liberti@ubmotors.com.ar</p>
+        <p className="text-gray-300"> <span className="font-bold text-red-500">Repuestos:</span> leonardo.cocha@ubmotors.com.ar</p>
+        <p className="text-gray-300"> <span className="font-bold text-red-500">Turnos:</span> contacto@ubmotors.com.ar</p>
+      </div>
+    </div>
+  </div>
+</div>
           {/* Trabaja con nosotros */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 w-fit border-b-2 border-red-500">
@@ -96,19 +111,18 @@ export default function Footer() {
               <h3 className="text-xl font-bold">Trabaja con Nosotros</h3>
             </div>
             <p className="text-gray-300">
-              ¿Querés ser parte de nuestro equipo? Dejanos tus datos.
+              ¿Querés ser parte de nuestro equipo? Dejanos tus datos y únete a nuestra comunidad profesional.
             </p>
             <Link href="/trabaja-con-nosotros">
-              <Button className="w-full bg-white text-gray-900 hover:bg-gray-200 mt-5">
+              <Button className="w-full bg-red-600 text-white hover:bg-red-700 mt-5">
                 Postularme
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
             </Link>
           </div>
         </div>
-
         <div className="py-6 border-t border-white/10 text-center text-gray-400 text-sm">
-          <p className="mb-2">&copy; {new Date().getFullYear()} Pueble S.A. Todos los derechos reservados.</p>
+          <p className="mb-2">&copy; {new Date().getFullYear()} UB Motors. Todos los derechos reservados.</p>
           <a
             href="https://portfolio-bonacossa.vercel.app/"
             target="_blank"
@@ -116,7 +130,7 @@ export default function Footer() {
             className="inline-flex items-center gap-2 text-gray-300 hover:text-white transition-colors"
           >
             <Code className="w-4 h-4" />
-            <span>Desing by P</span>
+            <span>Design by P</span>
           </a>
         </div>
       </div>

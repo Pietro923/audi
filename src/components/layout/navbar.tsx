@@ -75,7 +75,7 @@ export default function Navbar() {
             Empresa
           </Link>
           <Link 
-            href="/public/catalogo" 
+            href="/catalogo" 
             className="text-gray-800 dark:text-white hover:text-red-600 transition"
           >
             Catálogo
